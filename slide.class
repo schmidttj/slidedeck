@@ -1,0 +1,428 @@
+*! version 1.0.0  3aug2022
+*! Timothy J. Schmidt
+version 17.0
+class slide {
+   string    name
+   string    title
+   array     exhibits
+   array     bullets_main
+   array     bmn_run
+   array     bmn_orig
+   array     bullets_marg
+   array     bmg_run
+   array     bmg_orig
+   array     footnotes
+   array     fn_run
+   string    fontnm
+   double    fontsz
+}
+
+program .new
+   if ("`0'" != "") {
+      .set `0'
+   }
+   else {
+      di "you must name the slide"
+      error
+   }
+end
+
+program .set
+   args name
+   .name = "`name'"
+end
+
+program .get_name
+   class exit `"`.name'"'
+end
+
+program .set_title
+   args title
+   if ("`title'" != "") {
+      .title = "`title'"
+   }
+   else {
+      di as error "must specify a title as a string"
+      exit 198
+   }
+end
+
+program .get_title
+   class exit `"`.title'"'
+end
+
+program .add_exhibits
+   if (`"`0'"' != "") {
+      tokenize "`0'"
+      while (`"`1'"' != "") {
+         .exhibits.Arrpush "`1'"
+         mac shift
+      }
+   }
+   else {
+      di as error "must specify exhibits as a list of filenames"
+      exit 198
+   }
+end
+
+program .get_exhibits
+   local exstr "`.exhibits[1]'"
+   local i = 2
+   while ("`.exhibits[`i']'" != "") {
+      local exstr = "`exstr' `.exhibits[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`exstr'"'
+end
+
+program .add_main_bullets
+   if (`"`0'"' != "") {
+      .bmn_orig.Arrpush `"`0'"'
+      .parsemd `"`0'"'
+   }
+   else {
+      di as error "must specify main bullets as strings"
+      exit 198
+   }
+end
+
+program .get_main_bullets
+   local mbstr "`.bullets_main[1]'"
+   local i = 2
+   while ("`.bullets_main[`i']'" != "") {
+      local mbstr = "`mbstr' `.bullets_main[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`mbstr'"'
+end
+
+program .get_main_runs
+   local mbstr "`.bmn_run[1]'"
+   local i = 2
+   while ("`.bmn_run[`i']'" != "") {
+      local mbstr = "`mbstr'^`.bmn_run[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`mbstr'"'
+end
+
+program .add_margin_bullets
+   if (`"`0'"' != "") {
+      .bmg_orig.Arrpush `"`0'"'
+      .parsemd `"`0'"'
+   }
+   else {
+      di as error "must specify margin bullets as strings"
+      exit 198
+   }
+end
+
+program .get_margin_bullets
+   local mbstr "`.bullets_marg[1]'"
+   local i = 2
+   while ("`.bullets_marg[`i']'" != "") {
+      local mbstr = "`mbstr' `.bullets_marg[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`mbstr'"'
+end
+
+program .get_margin_runs
+   local mbstr "`.bmg_run[1]'"
+   local i = 2
+   while ("`.bmg_run[`i']'" != "") {
+      local mbstr = "`mbstr'^`.bmg_run[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`mbstr'"'
+end
+
+program .add_footnotes
+   if (`"`0'"' != "") {
+      while (`"`0'"' != "") {
+         gettoken left 0 : 0
+         .footnotes.Arrpush `left'
+      }
+   }
+   else {
+      di as error "must specify footnotes as strings"
+      exit 198
+   }
+end
+
+program .get_footnotes
+   local fnstr "`.footnotes[1]'"
+   local i = 2
+   while ("`.footnotes[`i']'" != "") {
+      local fnstr = "`fnstr' `.footnotes[`i']'"
+      local i = `i' + 1
+   }
+   class exit `"`fnstr'"'
+end
+
+program .show_name
+   di `"`.name'"'
+end
+
+program .show_title
+   di `"`.title'"'
+end
+
+program .show_exhibits
+   local i = 1
+   while (`i' <= `.exhibits.arrnels') {
+      di `"`.exhibits[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_main_bullets
+   local i = 1
+   while (`i' <= `.bullets_main.arrnels') {
+      di `"`.bullets_main[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_main_runs
+   local i = 1
+   while (`i' <= `.bmn_run.arrnels') {
+      di `"`.bmn_run[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_margin_bullets
+   local i = 1
+   while (`i' <= `.bullets_marg.arrnels') {
+      di `"`.bullets_marg[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_margin_runs
+   local i = 1
+   while (`i' <= `.bmg_run.arrnels') {
+      di `"`.bmg_run[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_footnote_runs
+   local i = 1
+   while (`i' <= `.fn_run.arrnels') {
+      di `"`.fn_run[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .show_footnotes
+   local i = 1
+   while (`i' <= `.footnotes.arrnels') {
+      di `"`.footnotes[`i']'"'
+      local i = `i' + 1
+   }
+end
+
+program .num_exhibits
+   class exit `.exhibits.arrnels'
+end
+
+program .num_main_bullets
+   class exit `.bullets_main.arrnels'
+end
+
+program .num_margin_bullets
+   class exit `.bullets_marg.arrnels'
+end
+
+program .num_footnotes
+   class exit `.footnotes.arrnels'
+end
+
+program .parsemd
+   local esc "\"
+   local dfnm = "Arial"
+   local dfsz = "11"
+   local dbold = "False"
+   local ditalic = "False"
+
+   local text = ""
+   local runtext = ""
+
+   local 0 "`*'"
+   gettoken f 0 : 0
+
+   *  Check that a target symbol (+ or -) is first, or throw an error
+   if (regexm("`f'", "^[ ]*[-+*]+")) {
+      if (regexm("`f'", "^[ ]*[-]+")) {
+         local target "margin"
+      }
+      else if (regexm("`f'", "^[ ]*[+]+")) {
+         local target "main"
+      }
+      else {
+         local target "footnote"
+      }
+   }
+   else {
+      di as error "must start with one or more + (main), - (margin) or * (footnote)"
+      exit 198
+   }
+
+   while ("`f'" != "") {
+* di "Processing `f'"
+      *  Token is a margin or main bullet, so set a paragraph and determine the level
+      if (substr("`f'", 1, 1) == "-" || substr("`f'", 1, 1) == "+") {
+         *  Push any bullet text to the storage arrays, then clear it
+         if ("`text'" != "") {
+            if ("`target'" == "margin") {
+               .bullets_marg.Arrpush "`text'"
+               .bmg_run.Arrpush "`runtext'"
+            }
+            else if ("`target'" == "main") {
+               .bullets_main.Arrpush "`text'"
+               .bmn_run.Arrpush "`runtext'"
+            }
+            else {
+               .footnotes.Arrpush "`text'"
+               .fn_run.Arrpush "`runtext'"
+            }
+            local text = ""
+            local runtext = ""
+         }
+
+         if (regexm("`f'", "^[ ]*[-]+")) {
+            local target = "margin"
+* di "Margin..."
+         }
+         else if (regexm("`f'", "^[ ]*[+]+")) {
+            local target = "main"
+* di "Main..."
+         }
+         else {
+            local target = "footnote"
+* di "Footnote..."
+         }
+
+         *  (re)set the font name, size, bold and italics to defaults
+         local fnm = "`dfnm'"
+         local fsz = `dfsz'
+         local bold = "`dbold'"
+         local italic = "`ditalic'"
+
+         *  Start a new paragraph and set the level (number of "-" or "+" characters)
+         *  and push the formatting strings to the target run array
+         local plev = strlen("`f'")
+         if ("`target'" == "margin") {
+            .bmg_run.Arrpush "--- ParaLevel`plev'"
+            .bmg_run.Arrpush "`fnm'::`fsz'::`bold'::`italic'"
+         }
+         else if ("`target'" == "main") {
+            .bmn_run.Arrpush "--- ParaLevel`plev'"
+            .bmn_run.Arrpush "`fnm'::`fsz'::`bold'::`italic'"
+         }
+         else {
+            .fn_run.Arrpush "--- ParaLevel`plev'"
+            .fn_run.Arrpush "`fnm'::`fsz'::`bold'::`italic'"
+         }
+      }
+      *  Token is a run directive, so interpret it
+      else if (regexm("`f'", "^[\^]+")) {
+         *  If there's any bullet text, push it
+         if ("`runtext'" != "") {
+            if ("`target'" == "margin") {
+               .bmg_run.Arrpush "`runtext'"
+            }
+            else if ("`target'" == "main") {
+               .bmn_run.Arrpush "`runtext'"
+            }
+            else {
+               .fn_run.Arrpush "`runtext'"
+            }
+            local runtext = ""
+         }
+
+* di "tokenize: `f'"
+         tokenize "`f'", parse("^")
+         local c = 0
+         local j = 1
+* di "j:``j''"
+         while ("``j''" == "^") {
+            local c = `c' + 1
+            local j = `j' + 1
+         }
+
+         *  One caret indicates italics or font name or size
+         if (`c' == 1) {
+            *  There's nothing after the caret, so toggle the italic setting
+            if ("``j''" == "") {
+               if ("`italic'" == "True") {
+                  local italic = "False"
+               }
+               else {
+                  local italic = "True"
+               }
+            }
+            *  If there's a number after the caret, it's a font size
+            else if (regexm("``j''", "[0-9]+")) {
+               local fsz = "``j''"
+            }
+            *  If there's a word after the caret, it's a font name
+            else if (regexm("``j''", "[A-Za-z ]+")) {
+               local fnm = "``j''"
+            }
+         }
+         *  Two carets indicate bold font, so toggle it
+         else if (`c' == 2) {
+            if ("`bold'" == "True") {
+               local bold = "False"
+            }
+            else {
+               local bold = "True"
+            }
+         }
+         *  Set and push the text "decorations"
+         if ("`target'" == "margin") {
+            .bmg_run.Arrpush "`fnm':`fsz':`bold':`italic'"
+         }
+         else if ("`target'" == "main") {
+            .bmn_run.Arrpush "`fnm':`fsz':`bold':`italic'"
+         }
+         else {
+            .fn_run.Arrpush "`fnm':`fsz':`bold':`italic'"
+         }
+      }
+      *  Token is a word, so build up the text string
+      else {
+         if ("`text'" == "") {
+            local text = "`f'"
+            local runtext = "`f'"
+         }
+         else {
+            local text = "`text' `f'"
+            local runtext = "`runtext' `f'"
+         }
+      }
+
+      gettoken f 0 : 0
+* di "Next token: `f'"
+   }
+
+   if ("`text'" != "") {
+* di "3 Pushing `text'"
+      if ("`target'" == "margin") {
+         .bullets_marg.Arrpush "`text'"
+         .bmg_run.Arrpush "`runtext'"
+      }
+      else if ("`target'" == "main") {
+         .bullets_main.Arrpush "`text'"
+         .bmn_run.Arrpush "`runtext'"
+      }
+      else {
+         .footnotes.Arrpush "`text'"
+         .fn_run.Arrpush "`runtext'"
+      }
+   }
+
+end

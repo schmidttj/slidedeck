@@ -1,0 +1,165 @@
+*! version 1.0.0  3aug2022
+*! Timothy J. Schmidt
+version 17.0
+class deck {
+   classwide:
+      BAD_VALUE = -999
+      n = 0
+   instancespecific:
+      string    fnpres
+      array     slides
+      array     slides_los
+}
+
+program .new
+   if (`0' != "") {
+      .set `0'
+   }
+   else {
+      di as error "must specify PowerPoint filename on construction"
+      exit 198
+   }
+   python: from slidedeck import Deck
+   python: deck = Deck("`.fnpres'")
+end
+
+program .set
+   args fn
+   .fnpres = "`fn'"
+end
+
+program .save
+   args fn
+   python: deck.save("`fn'")
+end
+
+program .add_slide
+   args slide index
+
+   *  Build a string of slide names, inserting new slide at specified spot
+   if ("`index'" != "") {
+      local ss ""
+      local i = 1
+      while (`i' <= `.slides.arrnels') {
+         if ("`i'" == "`index'") {
+            local ss "`ss' `slide'"
+         }
+         local ss "`ss' `.slides[`i']'"
+         local i = `i' + 1
+      }
+
+      *  Rebuild the slides array
+      .slides.Arrdropall
+      tokenize "`ss'"
+      local i = 1
+      while ("``i''" != "") {
+         .slides.Arrpush ``i''
+         local i = `i' + 1
+      }
+   }
+   else {
+      .slides.Arrpush `slide'
+   }
+
+   local snum = substr("`slide'", 3, strlen("`slide'")-2)
+   local sname = "``slide'.name'"
+
+   python: from slidedeck import Slide
+   python: s`snum' = Slide("`sname'")
+
+   local ti "``slide'.get_title'"
+   if ("`ti'" != "") {
+      python: s`snum'.add_title("`ti'")
+   }
+
+   if (``slide'.num_exhibits' > 0) {
+      local i = 1
+      while (`i' <= ``slide'.num_exhibits') {
+         python: s`snum'.add_exhibit("``slide'.exhibits[`i']'")
+         local i = `i' + 1
+      }
+   }
+
+   if (``slide'.num_main_bullets' > 0) {
+      local i = 1
+      while (`i' <= ``slide'.num_main_bullets') {
+         python: s`snum'.add_main_bullets("``slide'.bmn_orig[`i']'")
+         local i = `i' + 1
+      }
+   }
+
+   if (``slide'.num_margin_bullets' > 0) {
+      local i = 1
+      while (`i' <= ``slide'.num_margin_bullets') {
+         python: s`snum'.add_margin_bullets("``slide'.bmg_orig[`i']'")
+         local i = `i' + 1
+      }
+   }
+
+   if (``slide'.num_footnotes' > 0) {
+      local i = 1
+      while (`i' <= ``slide'.num_footnotes') {
+         python: s`snum'.add_footnotes("``slide'.footnotes[`i']'")
+         local i = `i' + 1
+      }
+   }
+
+   if ("`index'" != "") {
+      local index = `index' - 1
+      python: deck.add_slide(s`snum', index=`index')
+   }
+   else {
+      python: deck.add_slide(s`snum')
+   }
+end
+
+program .del_slide
+   args slide
+
+   *  Build a string of the slides to keep
+   local ss ""
+   local i = 1
+   while (`i' <= `.slides.arrnels') {
+      if ("``slide'.name'" != "``.slides[`i']'.name'") {
+            local ss "`ss' `.slides[`i']'"
+      }
+      local i = `i' + 1
+   }
+
+   .slides.Arrdropall
+
+   *  Recreate the slides array with one less element
+   tokenize "`ss'"
+   local i = 1
+   while ("``i''" != "") {
+      .slides.Arrpush ``i''
+      local i = `i' + 1
+   }
+
+   python: deck.del_slide("``slide'.name'")
+end
+
+program .show_fn
+   di "`.fnpres'"
+end
+
+program .show_slides
+   local i = 1
+   while (`i' <= `.slides.arrnels') {
+      di "`.slides[`i']': ``.slides[`i']'.name'"
+      local i = `i' + 1
+   }
+end
+
+program .num_slides
+   class exit "`.slides.arrnels'"
+end
+
+program .show_layouts
+   python: deck.show_layouts()
+end
+
+program .find_layout
+   di "finding layout for `0'"
+   python: los = deck.find_layout(`0')
+end
