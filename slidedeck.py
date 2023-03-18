@@ -723,6 +723,13 @@ class Slide:
          return True
 
    #  Parse a string for Markdown-style directives
+   #  + (one or more) is a main bullet
+   #  - (one or more) is a margin bullet
+   #  ^ (one or more) is a footnote
+   #  * italicizes text
+   #  ** bolds text
+   #  *# changes the font size
+   #  *fontname changes the font
    def parse_md(self, s):
       #  Defaults
       dfnm = "Arial"
@@ -734,8 +741,8 @@ class Slide:
       runtext = ""
       toks = re.split(' ', s)
 
-      #  Check that a target symbol (+ or -) is first, or throw an error
-      if (re.search("^[\s]*[-+*]+", toks[0])):
+      #  Check that a target symbol (+ or - or ^) is first, or throw an error
+      if (re.search("^[\s]*[-+\^]+", toks[0])):
          if (re.search("^[\s]*[-]+", toks[0])):
             target = "margin"
          elif (re.search("^[\s]*[+]+", toks[0])):
@@ -743,12 +750,12 @@ class Slide:
          else:
             target = "footnote"
       else:
-         raise SyntaxError('--- must start with one or more "+" (main), "-" (margin) or "*" (footnote) ---')
+         raise SyntaxError('--- must start with one or more "+" (main), "-" (margin) or "^" (footnote) ---')
 
       for j in range(0, len(toks)):
          #  Token is a margin or main bullet or footnote, so set a paragraph and
          #  determine the level
-         if (re.search("^[\s]*[-+*]+", toks[0])):
+         if (re.search("^[\s]*[-+\^]+", toks[0])):
             #  Push any text to the storage arrays, then clear it
             if (text != ""):
                if (target == "margin"):
@@ -776,7 +783,7 @@ class Slide:
             bold = dbold
             italic = ditalic
 
-            #  Start a new paragraph and set the level (number of "-", "+" or "*"
+            #  Start a new paragraph and set the level (number of "-", "+" or "^"
             #  characters) and push the formatting strings to the target run array
             plev = str(len(toks[0]))
             if (target == "margin"):
@@ -790,7 +797,7 @@ class Slide:
                self.run_fn.append(fnm + "::" + fsz + "::" + bold + "::" + italic)
 
          #  Token is a run directive, so interpret it
-         elif (re.search("^[\^]+", toks[0])):
+         elif (re.search("^[\*]+", toks[0])):
             #  If there's any bullet text, push it
             if (runtext != ""):
                if (target == "margin"):
@@ -803,23 +810,23 @@ class Slide:
 
             c = 0
             for i in range(0, len(toks[0])):
-               if (toks[0][i] == "^"):
+               if (toks[0][i] == "*"):
                   c += 1
-            #  One caret indicates italics or font name or size
+            #  One asterisk indicates italics or font name or size
             if (c == 1):
-               #  There's nothing after the caret, so toggle the italic setting
+               #  There's nothing after the asterisk, so toggle the italic setting
                if (len(toks[0]) == 1):
                   if (italic == "True"):
                      italic = "False"
                   else:
                      italic = "True"
-               #  If there's a number after the caret, it's a font size
+               #  If there's a number after the asterisk, it's a font size
                elif (re.search("[0-9]+", toks[0][len(toks[0])-1])):
-                  (caret, fsz) = toks[0].split('^')
-               #  If there's a word after the caret, it's a font name
+                  (ast, fsz) = toks[0].split('^')
+               #  If there's a word after the asterisk, it's a font name
                elif (re.search("[A-Za-z ]+", toks[0][len(toks[0])-1])):
-                  (caret, fnm) = toks[0].split('^')
-            #  Two carets indicate bold font, so toggle it
+                  (ast, fnm) = toks[0].split('^')
+            #  Two asterisks indicate bold font, so toggle it
             elif (c == 2):
                if (bold == "True"):
                   bold = "False"
