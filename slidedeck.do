@@ -62,7 +62,7 @@ save econqtr, replace
 .s1.add_margin_bullets - Real GDP continues to expand, but growth is slowing
 .s1.add_margin_bullets - Industrial production has recovered strongly from the pandemic-induced recession
 .s1.add_margin_bullets - Unemployment remains near its record low given strong labor market conditions
-.s1.add_margin_bullets - Consumer price inflation has reached a ^ four-decade ^ high
+.s1.add_margin_bullets - Consumer price inflation has reached a ** four-decade ** high
 
 .d.add_slide .s1
 
@@ -70,10 +70,10 @@ save econqtr, replace
 
 .s2 = .slide.new execsummary
 .s2.set_title "Executive Summary"
-.s2.add_main_bullets + ^16 U.S. economic expansion continues, but the pace of growth has slowed
+.s2.add_main_bullets + *16 U.S. economic expansion continues, but the pace of growth has slowed
 .s2.add_main_bullets ++ Consensus forecast suggests below-trend growth in second half of 2022
-.s2.add_main_bullets + ^16 Labor market conditions remain very strong amid high labor demand and low participation rates
-.s2.add_main_bullets + ^16 Unusually high inflation will prompt tighter monetary policy from the Federal Reserve
+.s2.add_main_bullets + *16 Labor market conditions remain very strong amid high labor demand and low participation rates
+.s2.add_main_bullets + *16 Unusually high inflation will prompt tighter monetary policy from the Federal Reserve
 
 .d.add_slide .s2
 
@@ -93,4 +93,4 @@ save econqtr, replace
 
 *  Save the deck with the two slides; slides are "rendered" at save
 
-.d.save "d:/stataconference2022/econreview.pptx"
+.d.save "c:/users/schmi/documents/git/slidedeck/econreview.pptx"

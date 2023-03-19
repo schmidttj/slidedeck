@@ -122,6 +122,7 @@ class Deck:
             i += 1
 
       #  Fill the Main text box with bullets, if applicable
+      print("Rendering............")
       if (slide.num_main_bullets() > 0):
          #  Set up the text box
          ph = self.get_main_ph(lo)
@@ -822,10 +823,12 @@ class Slide:
                      italic = "True"
                #  If there's a number after the asterisk, it's a font size
                elif (re.search("[0-9]+", toks[0][len(toks[0])-1])):
-                  (ast, fsz) = toks[0].split('^')
+                  print("Parsing {}".format(toks[0]))
+                  (ast, fsz) = toks[0].split('*')
                #  If there's a word after the asterisk, it's a font name
                elif (re.search("[A-Za-z ]+", toks[0][len(toks[0])-1])):
-                  (ast, fnm) = toks[0].split('^')
+                  print("Parsing... {}".format(toks[0]))
+                  (ast, fnm) = toks[0].split('*')
             #  Two asterisks indicate bold font, so toggle it
             elif (c == 2):
                if (bold == "True"):
